@@ -213,6 +213,7 @@ class ChatterboxTTS:
         exaggeration=0.5,
         cfg_weight=0.5,
         temperature=0.8,
+        apply_watermark=True,
         # stream - left for API compatibility
         tokens_per_slice=None,
         remove_milliseconds=None,
