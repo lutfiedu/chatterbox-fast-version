@@ -292,6 +292,21 @@ def get_or_load_model():
         # You might need to add this here.
         # MODEL.t3.init_patched_model()
         
+        # Add this block to apply torch.compile to the generation step.
+        try:
+            print("Applying torch.compile to the model's generation step...")
+            MODEL.t3._step_compilation_target = torch.compile(
+                MODEL.t3._step_compilation_target,
+                fullgraph=True,
+                backend="cudagraphs"
+            )
+            print("Model generation step successfully compiled.")
+        except Exception as e:
+            print(f"[ERROR] Failed to compile the model: {e}")
+            # The script can continue without compilation, but it will be slower.
+            # You might want to handle this more gracefully depending on your needs.
+
+        
         print(f"Model loaded on device: {getattr(MODEL, 'device', 'unknown')}")
     return MODEL
 
@@ -1759,6 +1774,7 @@ def main():
         demo.launch(share=True)
 if __name__ == "__main__":
     main()
+
 
 
 
