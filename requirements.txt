@@ -19,3 +19,4 @@ nltk
 --extra-index-url=https://download.pytorch.org/whl/cu128
 torch==2.7.0
 torchaudio==2.7.0
+matplotlib
