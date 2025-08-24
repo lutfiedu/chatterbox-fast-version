@@ -2,7 +2,7 @@ from pathlib import Path
 
 import librosa
 import torch
-import perth
+#import perth
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 
@@ -26,7 +26,7 @@ class ChatterboxVC:
         self.sr = S3GEN_SR
         self.s3gen = s3gen
         self.device = device
-        self.watermarker = perth.PerthImplicitWatermarker()
+        #self.watermarker = perth.PerthImplicitWatermarker()
         if ref_dict is None:
             self.ref_dict = None
         else:
@@ -73,9 +73,10 @@ class ChatterboxVC:
 
         return cls.from_local(Path(local_path).parent, device)
 
-    def set_target_voice(self, wav_fpath):
+    def set_target_voice(self, wav_fpath, pitch_shift):
         ## Load reference wav
         s3gen_ref_wav, _sr = librosa.load(wav_fpath, sr=S3GEN_SR)
+        s3gen_ref_wav = librosa.effects.pitch_shift(y=s3gen_ref_wav, sr=S3GEN_SR, n_steps=pitch_shift)
 
         s3gen_ref_wav = s3gen_ref_wav[:self.DEC_COND_LEN]
         self.ref_dict = self.s3gen.embed_ref(s3gen_ref_wav, S3GEN_SR, device=self.device)
