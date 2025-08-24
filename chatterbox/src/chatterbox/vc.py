@@ -83,8 +83,8 @@ class ChatterboxVC:
     def generate(
         self,
         audio,
-        apply_watermark=True,
         target_voice_path=None,
+        apply_watermark=True,
     ):
         if target_voice_path:
             self.set_target_voice(target_voice_path)
