@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import librosa
 import torch
-#import perth
+import perth
 import torch.nn.functional as F
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
@@ -123,9 +124,7 @@ class ChatterboxTTS:
         self.tokenizer = tokenizer
         self.device = device
         self.conds = conds
-        #self.watermarker = perth.PerthImplicitWatermarker()
-        self.default_conds = conds  # <-- Save initial conds (default voice)
-
+        self.watermarker = perth.PerthImplicitWatermarker()
 
     @classmethod
     def from_local(cls, ckpt_dir, device) -> 'ChatterboxTTS':
