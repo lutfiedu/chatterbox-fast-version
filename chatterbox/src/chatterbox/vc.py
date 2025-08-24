@@ -83,11 +83,12 @@ class ChatterboxVC:
     def generate(
         self,
         audio,
-        apply_watermark=True,
         target_voice_path=None,
+        apply_watermark=True,  # New argument!
+        pitch_shift=0
     ):
         if target_voice_path:
-            self.set_target_voice(target_voice_path)
+            self.set_target_voice(target_voice_path, pitch_shift)
         else:
             assert self.ref_dict is not None, "Please `prepare_conditionals` first or specify `target_voice_path`"
 
@@ -101,5 +102,8 @@ class ChatterboxVC:
                 ref_dict=self.ref_dict,
             )
             wav = wav.squeeze(0).detach().cpu().numpy()
-            watermarked_wav = self.watermarker.apply_watermark(wav, sample_rate=self.sr)
+            if apply_watermark:
+                watermarked_wav = self.watermarker.apply_watermark(wav, sample_rate=self.sr)
+            else:
+                watermarked_wav = wav
         return torch.from_numpy(watermarked_wav).unsqueeze(0)
