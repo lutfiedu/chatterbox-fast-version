@@ -230,10 +230,14 @@ except LookupError:
     nltk.download('punkt_tab')
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "0"
+
+# === Model Loading Section ===
+# (This section replaces the original model loading code)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🚀 Running on device: {DEVICE}")
 
 MODEL = None
+VC_MODEL = None
 
 def load_whisper_backend(model_name, use_faster_whisper, device):
     if use_faster_whisper:
@@ -244,13 +248,49 @@ def load_whisper_backend(model_name, use_faster_whisper, device):
         print(f"[DEBUG] Loading openai-whisper model: {model_name}")
         return whisper.load_model(model_name, device=device)
 
+def chatterbox_to(model, device, dtype):
+    """Moves a ChatterboxTTS model to a specified device and dtype."""
+    print(f"Moving model to {str(device)}, {str(dtype)}")
+    # These lines are what you want to replicate for your model.
+    # They explicitly move different parts of the model to the target device.
+    model.ve.to(device=device)
+    model.t3.to(device=device, dtype=dtype)
+    model.s3gen.to(device=device, dtype=dtype)
+    # Patch for a known cuFFT error with bfloat16
+    model.s3gen.tokenizer.to(dtype=torch.float32)
+    model.conds.to(device=device)
+    model.device = device
+    torch.cuda.empty_cache()
+    return model
+
 def get_or_load_model():
+    """Gets or loads the ChatterboxTTS model."""
     global MODEL
     if MODEL is None:
-        print("Model not loaded, initializing...")
-        MODEL = ChatterboxTTS.from_pretrained(DEVICE)
-        if hasattr(MODEL, 'to') and str(MODEL.device) != DEVICE:
-            MODEL.to(DEVICE)
+        print("Model not loaded, initializing from scratch...")
+        # This is where you would load your desired model.
+        # The ChatterboxTTS.from_pretrained() function in the original
+        # script loads the default model.
+        # To change the model, you would modify this line.
+        # However, the provided examples don't show an alternative.
+        # Based on the second script's logic, we can explicitly define the device/dtype.
+        
+        # NOTE: If you have a specific model file or path from a new source,
+        # you would need to adjust the `from_pretrained` call. For example:
+        # MODEL = ChatterboxTTS.from_pretrained("your/new/model/path", device=DEVICE)
+        # Or, if it's a model name:
+        # MODEL = ChatterboxTTS.from_pretrained("your-new-model-name", device=DEVICE)
+
+        MODEL = ChatterboxTTS.from_pretrained(device=DEVICE)
+        
+        # Apply the `chatterbox_to` function to ensure correct device and dtype
+        MODEL = chatterbox_to(MODEL, device=torch.device(DEVICE), dtype=torch.float32)
+        
+        # The second script also had this line, which may be important for some models.
+        # model.t3.init_patched_model()
+        # You might need to add this here.
+        # MODEL.t3.init_patched_model()
+        
         print(f"Model loaded on device: {getattr(MODEL, 'device', 'unknown')}")
     return MODEL
 
@@ -1718,6 +1758,7 @@ def main():
         demo.launch(share=True)
 if __name__ == "__main__":
     main()
+
 
 
 
