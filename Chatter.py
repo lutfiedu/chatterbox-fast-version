@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg', force=True)
 import random
 import numpy as np
 import torch
@@ -1759,6 +1759,7 @@ def main():
         demo.launch(share=True)
 if __name__ == "__main__":
     main()
+
 
 
 
